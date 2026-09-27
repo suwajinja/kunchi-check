@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>くんち職務チェック</title>
+<meta name="description" content="鎮西大社諏訪神社 長崎くんち 職務チェックリスト">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F5F0E4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171513" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="くんち職務">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-text">
+    <p class="mast-sub">鎮西大社 諏訪神社</p>
+    <h1>長崎くんち 職務チェック</h1>
+  </div>
+  <button type="button" id="who" class="who-btn" aria-label="名前を変更"></button>
+</header>
+
+<div id="bar" class="bar">
+  <div class="tabs-wrap">
+    <nav id="tabs" class="tabs" role="tablist" aria-label="班"></nav>
+    <button type="button" id="status" class="status" aria-live="polite"></button>
+  </div>
+  <button type="button" id="now" class="now" aria-label="今やることの行へ移動"></button>
+</div>
+
+<main id="main" class="main" aria-live="off"></main>
+
+<footer class="dock">
+  <p id="drum" class="drum"></p>
+  <div class="dock-btns">
+    <button type="button" id="goNow" class="dock-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+      <span>今やること</span>
+    </button>
+    <button type="button" id="todo" class="dock-btn" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8"/></svg>
+      <span>未完了のみ</span>
+    </button>
+    <button type="button" id="openNotes" class="dock-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v11H10l-5 4z"/><path d="M8.5 8.5h7M8.5 11.5h5"/></svg>
+      <span>申し送り</span>
+      <i id="noteBadge" class="badge" hidden></i>
+    </button>
+  </div>
+</footer>
+
+<section id="notes" class="sheet" role="dialog" aria-modal="true" aria-labelledby="notesTitle" hidden>
+  <div class="sheet-h">
+    <h2 id="notesTitle">申し送り・メモ</h2>
+    <button type="button" id="closeNotes" class="sheet-close">閉じる</button>
+  </div>
+  <div id="noteTabs" class="note-tabs" role="tablist"></div>
+  <form id="composer" class="composer">
+    <label for="noteText" class="sr">申し送りの本文</label>
+    <textarea id="noteText" rows="3" maxlength="1000" placeholder="やり残し・引き継ぎ・不足物など"></textarea>
+    <div class="composer-f">
+      <span id="composeTo" class="compose-to"></span>
+      <button type="submit" class="btn-primary">投稿する</button>
+    </div>
+  </form>
+  <div id="noteList" class="note-list"></div>
+</section>
+
+<div id="modal" class="modal" hidden>
+  <form id="modalForm" class="modal-card">
+    <p class="modal-mark">諏訪神社</p>
+    <h2 id="modalTitle"></h2>
+    <p id="modalDesc" class="modal-desc"></p>
+    <input id="modalInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+    <p id="modalErr" class="modal-err" role="alert"></p>
+    <button type="submit" id="modalBtn" class="btn-primary"></button>
+    <button type="button" id="modalCancel" class="btn-text" hidden>キャンセル</button>
+  </form>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
