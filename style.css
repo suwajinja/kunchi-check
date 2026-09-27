@@ -356,6 +356,28 @@ button { cursor: pointer; }
 }
 .modal-err { margin: 0; min-height: 1.4em; color: var(--shu); font-size: 15px; font-weight: 700; }
 
+/* 自分の班 */
+.g-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.g-pick {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 64px; padding: 10px 16px;
+  border: 2px solid var(--line); border-radius: 14px; background: var(--bg); text-align: left;
+}
+.g-pick b { font-family: var(--f-head); font-size: 21px; line-height: 1.3; }
+.g-pick span { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.g-pick.current { border-color: var(--shu); }
+.g-pick:active { background: var(--paper-2); }
+#groupStep h2, #groupConfirm h2 { margin: 4px 0 0; font-family: var(--f-head); font-size: 22px; }
+#groupConfirm { display: flex; flex-direction: column; gap: 10px; }
+#groupConfirm[hidden] { display: none; }
+.g-confirm-name { margin: 6px 0 0; font-family: var(--f-head); font-size: 30px; font-weight: 700; color: var(--shu); }
+.g-confirm-first { margin: 0 0 6px; padding: 10px 12px; border-radius: 10px; background: var(--bg); font-size: 14px; color: var(--ink-2); text-align: left; }
+#groupPick .modal-card { max-height: calc(100vh - 32px); overflow-y: auto; }
+.mine-mark {
+  display: inline-block; margin-right: 4px; padding: 0 5px; border-radius: 6px; background: var(--shu); color: var(--shu-ink);
+  font-size: 11px; font-weight: 700; line-height: 18px; vertical-align: 2px;
+}
+.now-other { display: inline-block; font-size: 12px; background: var(--ink); color: var(--bg); border-radius: 4px; padding: 0 6px; margin-right: 4px; vertical-align: 2px; }
+
 .toast {
   position: fixed; left: 50%; bottom: calc(var(--dock-h) + 12px); transform: translateX(-50%); z-index: 70;
   width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 12px;

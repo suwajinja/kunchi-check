@@ -89,6 +89,26 @@
   </form>
 </div>
 
+<div id="groupPick" class="modal" hidden>
+  <div class="modal-card">
+    <p class="modal-mark">諏訪神社</p>
+    <div id="groupStep">
+      <h2>自分の班を選択</h2>
+      <p class="modal-desc">あとで右上の名前から変更できます。</p>
+      <div id="groupList" class="g-list"></div>
+    </div>
+    <div id="groupConfirm" hidden>
+      <h2>この班でよろしいですか？</h2>
+      <p id="groupConfirmName" class="g-confirm-name"></p>
+      <p id="groupConfirmHelp" class="modal-desc"></p>
+      <p id="groupConfirmFirst" class="g-confirm-first"></p>
+      <button type="button" id="groupOk" class="btn-primary">はい、この班です</button>
+      <button type="button" id="groupBack" class="btn-text">選び直す</button>
+    </div>
+    <button type="button" id="groupCancel" class="btn-text" hidden>変更しない</button>
+  </div>
+</div>
+
 <div id="toast" class="toast" role="status" hidden></div>
 
 <script src="config.js"></script>

@@ -1,6 +1,6 @@
 // 圏外でもアプリを開けるようにするための Service Worker
 // 画面のファイルを更新したら、CACHE の番号を1つ上げてください。
-const CACHE = 'kunchi-v2';
+const CACHE = 'kunchi-v3';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 

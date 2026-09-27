@@ -44,6 +44,7 @@
   // ---------- 状態 ----------
   let pass = LS.get('pass', '');
   let myName = LS.get('name', '');
+  let myGroup = LS.get('group', '');
   let data = LS.get('data', null);
   let server = LS.get('server', { v: null, checks: {}, notes: [] });
   let pending = LS.get('pending', []);
@@ -258,7 +259,7 @@
   function renderTabs() {
     const ids = [OVERVIEW].concat(data.groups.map((g) => g.id));
     $('#tabs').innerHTML = ids.map((id) =>
-      `<button type="button" class="tab" role="tab" data-tab="${esc(id)}" aria-selected="${id === tab}">${esc(id)}<span class="tab-n" data-tabn="${esc(id)}"></span></button>`).join('');
+      `<button type="button" class="tab ${id === myGroup ? 'mine' : ''}" role="tab" data-tab="${esc(id)}" aria-selected="${id === tab}">${id === myGroup ? '<span class="mine-mark">自分</span>' : ''}${esc(id)}<span class="tab-n" data-tabn="${esc(id)}"></span></button>`).join('');
     const sel = $('#tabs .tab[aria-selected="true"]');
     if (sel) sel.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }
@@ -320,7 +321,7 @@
     document.body.classList.toggle('todo', onlyTodo);
     $('#todo').setAttribute('aria-pressed', String(onlyTodo));
     $('#drum').textContent = data.meta.drum;
-    $('#who').textContent = myName ? `${myName} さん` : '名前を設定';
+    renderWho();
     renderTabs();
     $('#main').innerHTML = tab === OVERVIEW ? overviewHTML(data.overview) : groupHTML(groupById(tab));
     refreshChecks();
@@ -398,7 +399,8 @@
     if (!data) return;
     const w = whereNow();
     const el = $('#now');
-    const test = testNow != null ? '<span class="now-test">時刻テスト</span>' : '';
+    const test = (testNow != null ? '<span class="now-test">時刻テスト</span>' : '') +
+      (tab !== OVERVIEW && myGroup && tab !== myGroup ? `<span class="now-other">表示中：${esc(tab)}</span>` : '');
     const label = (e) => `<span class="t">${esc(e.day.date)}日 ${esc(String(e.row.time).replace(/\n/g, ''))}</span>`;
     let html;
     let target = null;
@@ -621,6 +623,7 @@
           data = res.data; LS.set('data', data);
           if (!myName) { askName(true); return null; }
           closeModal();
+          if (!myGroup || !groupById(myGroup)) { askGroup(true); return null; }
           start();
           return null;
         } catch (e) {
@@ -635,7 +638,7 @@
   function askName(first) {
     modal({
       title: first ? 'お名前を入力' : '名前の変更',
-      desc: 'チェックや申し送りに表示されます。\n（例：植木）',
+      desc: first ? 'チェックや申し送りに表示されます。\n（例：植木）' : '名前を変えない場合はそのまま「保存」。\n次の画面で班も変更できます。',
       value: myName,
       placeholder: '名前',
       button: first ? 'はじめる' : '保存',
@@ -645,10 +648,60 @@
         if (!n) return '名前を入力してください';
         myName = n; LS.set('name', n);
         closeModal();
-        if (!started) start(); else { $('#who').textContent = `${myName} さん`; updateBadge(); }
+        renderWho();
+        updateBadge();
+        askGroup(first || !myGroup || !groupById(myGroup));
         return null;
       },
     });
+  }
+
+  // ---------- 自分の班 ----------
+  // 宿直者はどちらも2班から出るので、取り違えないよう説明と確認をはさむ
+  const GROUP_HELP = {
+    '1班': '1班の人',
+    '2班': '2班の人（宿直に当たっていない人）',
+    '7日宿直者': '2班のうち、10月7日の夜に神社で宿直する人',
+    '8日宿直者': '2班のうち、10月8日の夜に神社で宿直する人',
+  };
+  const groupLabel = (id) => (/宿直/.test(id) ? `${id}（2班）` : id);
+  const renderWho = () => { $('#who').textContent = myName ? `${myName}・${myGroup || '班未設定'}` : '名前を設定'; };
+
+  function askGroup(first) {
+    const box = $('#groupPick');
+    const list = $('#groupStep');
+    const confirmBox = $('#groupConfirm');
+    $('#groupList').innerHTML = data.groups.map((g) =>
+      `<button type="button" class="g-pick ${g.id === myGroup ? 'current' : ''}" data-pick="${esc(g.id)}">
+        <b>${esc(groupLabel(g.id))}</b><span>${esc(GROUP_HELP[g.id] || g.subtitle || '')}</span></button>`).join('');
+    list.hidden = false;
+    confirmBox.hidden = true;
+    $('#groupCancel').hidden = first || !myGroup;
+    box.hidden = false;
+    box.onclick = (e) => {
+      const pick = e.target.closest('[data-pick]');
+      if (pick) {
+        const id = pick.dataset.pick;
+        $('#groupConfirmName').textContent = groupLabel(id);
+        $('#groupConfirmHelp').textContent = GROUP_HELP[id] || '';
+        const f0 = groupById(id).days.flatMap((d) => d.rows.map((r) => ({ d, r })))[0];
+        $('#groupConfirmFirst').textContent = f0 ? `最初の予定：${f0.d.label} ${String(f0.r.time).replace(/\n/g, '')}　${f0.r.items.map((i) => i.text).join(' ／ ')}` : '';
+        $('#groupOk').dataset.id = id;
+        list.hidden = true;
+        confirmBox.hidden = false;
+        return;
+      }
+      if (e.target.closest('#groupBack')) { list.hidden = false; confirmBox.hidden = true; return; }
+      if (e.target.closest('#groupCancel')) { box.hidden = true; return; }
+      const ok = e.target.closest('#groupOk');
+      if (ok) {
+        myGroup = ok.dataset.id; LS.set('group', myGroup);
+        tab = myGroup; LS.set('tab', tab);
+        box.hidden = true;
+        if (!started) start(); else renderAll(true);
+        toast(`${groupLabel(myGroup)}の予定を表示しています`, 2400);
+      }
+    };
   }
 
   // ---------- 起動 ----------
@@ -735,6 +788,7 @@
   updateStatus();
   if (!pass || !data) askPass();
   else if (!myName) askName(true);
+  else if (!myGroup || !groupById(myGroup)) askGroup(true);
   else start();
 
   // 開発時の確認用
