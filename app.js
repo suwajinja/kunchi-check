@@ -16,7 +16,8 @@
 
   const cfg = window.KUNCHI_CONFIG || {};
   const isLocalHost = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || /^(192\.168|10)\./.test(location.hostname);
-  const API = isLocalHost || !/^https:\/\//.test(cfg.apiUrl || '') ? '/api' : cfg.apiUrl;
+  const apiParam = new URLSearchParams(location.search).get('api'); // 開発用：?api=http://localhost:8787
+  const API = isLocalHost && apiParam ? apiParam : isLocalHost || !/^https:\/\//.test(cfg.apiUrl || '') ? '/api' : cfg.apiUrl;
 
   const PLACE_CLASS = { 御旅所: 'p-otabi', 神社: 'p-jinja', 移動: 'p-ido', 休憩: 'p-kyukei' };
   const OVERVIEW = '全体';
@@ -125,7 +126,7 @@
     let delay = ms;
     if (delay == null) {
       if (online === false) delay = Math.min(30000, 4000 * Math.max(1, fails));
-      else delay = document.hidden ? 60000 : pending.length ? 1500 : 7000;
+      else delay = document.hidden ? 60000 : pending.length ? 1500 : 10000;
     }
     syncTimer = setTimeout(sync, delay);
   }
@@ -554,6 +555,26 @@
     scheduleSync(200);
   }
 
+  async function exportCsv() {
+    const btn = $('#exportCsv');
+    btn.disabled = true;
+    try {
+      const res = await api({ action: 'export', pass });
+      if (!res.ok || !res.csv) throw new Error(res.error);
+      const p = parts(Date.now());
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([res.csv], { type: 'text/csv' }));
+      a.download = `くんち職務記録_${p.month}月${p.day}日${p.hour}時${p.minute}分.csv`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    } catch (e) {
+      toast('記録を取得できませんでした。電波の良い場所でもう一度お試しください');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   let toastTimer = null;
   function toast(msg, ms) {
     const t = $('#toast');
@@ -695,6 +716,7 @@
       if (err) $('#modalErr').textContent = err;
     });
     $('#modalCancel').addEventListener('click', closeModal);
+    $('#exportCsv').addEventListener('click', exportCsv);
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) { updateNow(); sync(); } else scheduleSync();
     });
